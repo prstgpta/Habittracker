@@ -75,6 +75,12 @@ export const isToday = (date: Date): boolean => {
     date.getFullYear() === today.getFullYear();
 };
 
+// Format date as DD MMM (e.g., "21 May")
+export const formatDateShort = (date: Date): string => {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${date.getDate()} ${months[date.getMonth()]}`;
+};
+
 // Get dates for the past 104 weeks (2 years)
 export const getPast104Weeks = (): Date[][] => {
   const today = new Date();

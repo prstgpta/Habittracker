@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   Switch,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useHabits } from '../context/HabitContext';
 
 interface SettingsModalProps {
   visible: boolean;
@@ -17,6 +19,8 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const { eraseAllData } = useHabits();
+  const [isErasing, setIsErasing] = useState(false);
 
   return (
     <Modal
@@ -40,6 +44,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
                   thumbColor={isDarkMode ? '#2196F3' : '#f4f3f4'}
                 />
               </View>
+              
+              <TouchableOpacity
+                style={[styles.dangerButton, { opacity: isErasing ? 0.5 : 1 }]}
+                onPress={() => {
+                  Alert.alert(
+                    'Erase All Data',
+                    'Are you sure you want to erase all habit data? This action cannot be undone.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { 
+                        text: 'Erase', 
+                        style: 'destructive',
+                        onPress: async () => {
+                          setIsErasing(true);
+                          await eraseAllData();
+                          setIsErasing(false);
+                          Alert.alert('Success', 'All habit data has been erased.');
+                        } 
+                      },
+                    ]
+                  );
+                }}
+                disabled={isErasing}
+              >
+                <Text style={styles.dangerButtonText}>{isErasing ? 'Erasing...' : 'Erase All Data'}</Text>
+              </TouchableOpacity>
               
               <TouchableOpacity
                 style={[styles.closeButton, { backgroundColor: '#2196F3' }]}
@@ -91,6 +121,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  dangerButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+    backgroundColor: '#FF3B30',
+    width: '100%',
+    alignItems: 'center',
+  },
+  dangerButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },

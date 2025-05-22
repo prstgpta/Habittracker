@@ -20,6 +20,7 @@ interface HabitContextType {
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
   reorderHabits: (startIndex: number, endIndex: number) => void;
+  eraseAllData: () => Promise<void>;
 }
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
@@ -112,6 +113,16 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     setHabits(updatedHabits);
   };
+  
+  // Erase all habit data
+  const eraseAllData = async () => {
+    try {
+      await AsyncStorage.removeItem('habits');
+      setHabits([]);
+    } catch (error) {
+      console.error('Failed to erase habit data', error);
+    }
+  };
 
   return (
     <HabitContext.Provider
@@ -122,6 +133,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         toggleHabitCompletion,
         deleteHabit,
         reorderHabits,
+        eraseAllData,
       }}
     >
       {children}

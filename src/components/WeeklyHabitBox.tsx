@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { Habit } from '../context/HabitContext';
 import { useTheme } from '../context/ThemeContext';
-import { formatDate, getDayShortName, isToday } from '../utils/dateUtils';
+import { formatDate, getDayShortName, isToday, formatDateShort } from '../utils/dateUtils';
 
 interface WeeklyHabitBoxProps {
   habit: Habit;
@@ -19,6 +19,7 @@ const WeeklyHabitBox: React.FC<WeeklyHabitBoxProps> = ({
   onEditHabit,
   onDeleteHabit,
 }) => {
+  // Start with index 0 which represents the current week (week 2 in the UI)
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
   const { colors } = useTheme();
   
@@ -49,89 +50,94 @@ const WeeklyHabitBox: React.FC<WeeklyHabitBoxProps> = ({
     return a.getDay() - b.getDay();
   });
   
+  // Get the first and last date of the current week for the date range display
+  const firstDate = currentWeek[0];
+  const lastDate = currentWeek[6];
+  const dateRange = `${formatDateShort(firstDate)} - ${formatDateShort(lastDate)}`;
+  
   return (
-    <View style={[styles.container, { backgroundColor: colors.card, shadowColor: colors.cardShadow, borderColor: colors.border }]}>
+    <View style={[
+      styles.container, 
+      { 
+        backgroundColor: colors.card, 
+        shadowColor: colors.cardShadow,
+        borderWidth: 2,
+        borderColor: themeColor.secondary,
+      }
+    ]}>
       <View style={styles.headerRow}>
         <Text style={[styles.habitName, { color: colors.text }]}>{habit.name}</Text>
+        
+        {/* Edit and Delete buttons at top right */}
+        <View style={styles.actionButtons}>
+          {onEditHabit && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => onEditHabit(habit)}
+            >
+              <Text style={styles.actionIcon}>✏️</Text>
+            </TouchableOpacity>
+          )}
+          
+          {onDeleteHabit && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => onDeleteHabit(habit.id)}
+            >
+              <Text style={styles.actionIcon}>🗑️</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
       
-      <View style={styles.weekContainer}>
-        <View style={styles.navigationRow}>
+      {/* Combined row for navigation controls and dots */}
+      <View style={styles.controlsRow}>
+        {/* Left side: Navigation controls */}
+        <View style={styles.navigationControls}>
           <TouchableOpacity 
-            style={[styles.navButton, currentWeekIndex === 0 && styles.disabledButton]}
-            onPress={goToPreviousWeek}
-            disabled={currentWeekIndex === 0}
-          >
-            <Text style={styles.navButtonText}>←</Text>
-          </TouchableOpacity>
-          
-          <Text style={[styles.weekText, { color: colors.text }]}>
-            Week {currentWeekIndex + 1} of {allWeeks.length}
-          </Text>
-          
-          <TouchableOpacity 
-            style={[styles.navButton, currentWeekIndex === allWeeks.length - 1 && styles.disabledButton]}
+            style={[styles.navTriangle, currentWeekIndex === allWeeks.length - 1 && styles.disabledButton]}
             onPress={goToNextWeek}
             disabled={currentWeekIndex === allWeeks.length - 1}
           >
-            <Text style={styles.navButtonText}>→</Text>
+            <Text style={styles.triangleText}>◀</Text>
+          </TouchableOpacity>
+          
+          <Text style={[styles.dateRangeText, { color: colors.text }]}>
+            {dateRange}
+          </Text>
+          
+          <TouchableOpacity 
+            style={[styles.navTriangle, currentWeekIndex === 0 && styles.disabledButton]}
+            onPress={goToPreviousWeek}
+            disabled={currentWeekIndex === 0}
+          >
+            <Text style={styles.triangleText}>▶</Text>
           </TouchableOpacity>
         </View>
         
-        <View style={styles.weekContent}>
-          {/* Edit and Delete buttons positioned on the left */}
-          <View style={styles.actionButtonsContainer}>
-            {onEditHabit && (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => onEditHabit(habit)}
-              >
-                <Text style={styles.actionIcon}>✏️</Text>
-              </TouchableOpacity>
-            )}
-            
-            {onDeleteHabit && (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => onDeleteHabit(habit.id)}
-              >
-                <Text style={styles.actionIcon}>🗑️</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          
-          <View style={styles.daysContainer}>
-            <View style={styles.dayLabelsRow}>
-              {currentWeek.map((date, index) => (
-                <Text key={`label-${index}`} style={[styles.dayLabel, { color: colors.text }]}>
-                  {getDayShortName(date)}
-                </Text>
-              ))}
-            </View>
-            
-            <View style={styles.dotsRow}>
-              {currentWeek.map((date, index) => {
-                const dateStr = formatDate(date);
-                const isCompleted = habit.completions[dateStr];
-                
-                // Always make dots interactive in the weekly view
-                return (
-                  <TouchableOpacity
-                    key={`dot-${index}`}
-                    style={[
-                      styles.dot,
-                      isToday(date) && styles.todayDot,
-                      isCompleted && { backgroundColor: themeColor.primary },
-                    ]}
-                    onPress={() => onToggleCompletion(habit.id, dateStr)}
-                  />
-                );
-              })}
-            </View>
+        {/* Right side: Dots only */}
+        <View style={styles.rightControls}>
+          {/* Dots row */}
+          <View style={styles.dotsRow}>
+            {currentWeek.map((date, index) => {
+              const dateStr = formatDate(date);
+              const isCompleted = habit.completions[dateStr];
+              
+              return (
+                <TouchableOpacity
+                  key={`dot-${index}`}
+                  style={[
+                    styles.dot,
+                    isToday(date) && styles.todayDot,
+                    isCompleted && { backgroundColor: themeColor.primary },
+                  ]}
+                  onPress={() => onToggleCompletion(habit.id, dateStr)}
+                />
+              );
+            })}
           </View>
         </View>
       </View>
-      
     </View>
   );
 };
@@ -141,8 +147,10 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 8,
     backgroundColor: 'white',
-    padding: 16,
-    marginBottom: 16,
+    paddingTop: 10, // Reduced from 16
+    paddingBottom: 6, // Reduced from 8
+    paddingHorizontal: 16,
+    marginBottom: 12, // Reduced from 16
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -153,66 +161,67 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-    width: '100%',
+    marginBottom: 6, // Reduced from 10
   },
   habitName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     flex: 1,
   },
-  actionsContainer: {
+  actionButtons: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   actionButton: {
-    padding: 5,
-    marginLeft: 8,
+    padding: 4, // Reduced from 5
+    marginLeft: 0, // Removed margin
+    marginRight: 4, // Added small right margin
   },
   actionIcon: {
     fontSize: 16,
   },
-  navigationRow: {
+  controlsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 6,
   },
-  navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#2196F3',
+  navigationControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 0,
+  },
+  rightControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  navTriangle: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
   disabledButton: {
-    backgroundColor: '#B0BEC5',
+    opacity: 0.5,
   },
-  navButtonText: {
-    color: 'white',
+  triangleText: {
+    color: '#2196F3',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
-  weekContainer: {
+  dateRangeText: {
+    fontSize: 14,
+    color: '#757575',
+    marginHorizontal: 8,
+  },
+  dotsContainer: {
     width: '100%',
-  },
-  weekContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionButtonsContainer: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  daysContainer: {
-    flex: 1,
+    alignItems: 'flex-end',
   },
   dayLabelsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: 5, // Reduced by 3pt from 8
+    paddingHorizontal: 0, // Reduced by 5pt from 5
     marginBottom: 8,
   },
   dayLabel: {
@@ -223,25 +232,28 @@ const styles = StyleSheet.create({
   },
   dotsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 5, // Reduced by 3pt from 8
+    justifyContent: 'flex-end',
+    paddingHorizontal: 0,
+    marginLeft: 4,
   },
   dot: {
     width: 17, // Reduced by ~30% from 24px
     height: 17, // Reduced by ~30% from 24px
     borderRadius: 8.5,
     backgroundColor: '#E0E0E0',
-    margin: 3, // Set to 3pt for both horizontal and vertical spacing
+    marginVertical: 2,
+    marginHorizontal: 1, // Ensures 2px horizontal distance between dots
   },
   todayDot: {
-    borderWidth: 2,
-    borderColor: '#FF4081', // Pink color for better visibility in both light and dark modes
+    backgroundColor: '#A0A0A0', // Darker shade of grey for today's dot (matching HabitBox)
   },
 
   weekText: {
     fontSize: 14,
     color: '#757575',
+    marginHorizontal: 8,
   },
 });
 
-export default WeeklyHabitBox;
+// Wrap with React.memo to prevent unnecessary re-renders
+export default React.memo(WeeklyHabitBox);

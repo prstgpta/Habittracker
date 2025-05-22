@@ -35,7 +35,12 @@ function App(): React.JSX.Element {
             />
             
             <View style={styles.container}>
-              {activeTab === 'home' ? <HomeScreen /> : <WeeklyScreen />}
+              <View style={{ display: activeTab === 'home' ? 'flex' : 'none', flex: 1 }}>
+                <HomeScreen />
+              </View>
+              <View style={{ display: activeTab === 'weekly' ? 'flex' : 'none', flex: 1 }}>
+                <WeeklyScreen />
+              </View>
             </View>
             
             <TabNavigator activeTab={activeTab} onTabChange={setActiveTab} />

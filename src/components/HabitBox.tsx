@@ -52,7 +52,15 @@ const HabitBox: React.FC<HabitBoxProps> = ({
   }, [visibleDates.length]);
   
   return (
-    <View style={[styles.container, { backgroundColor: colors.card, shadowColor: colors.cardShadow, borderColor: colors.border }]}>
+    <View style={[
+      styles.container, 
+      { 
+        backgroundColor: colors.card, 
+        shadowColor: colors.cardShadow,
+        borderWidth: 2,
+        borderColor: themeColor.secondary,
+      }
+    ]}>
       <View style={styles.headerRow}>
         <Text style={[styles.habitName, { color: colors.text }]}>{habit.name}</Text>
         
@@ -97,8 +105,8 @@ const HabitBox: React.FC<HabitBoxProps> = ({
         >
           {visibleDates.map((week, weekIndex) => (
             <View key={`week-${weekIndex}`} style={styles.weekColumn}>
-              {/* Reverse the days array to show the latest day on the right */}
-              {[...week].reverse().map((date, dayIndex) => {
+              {/* Map through the days array in the correct order (Sunday to Saturday) */}
+              {week.map((date, dayIndex) => {
                 const dateStr = formatDate(date);
                 const isCompleted = habit.completions[dateStr];
                 
@@ -155,7 +163,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   habitName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     flex: 1,
   },
@@ -168,47 +176,48 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   actionIcon: {
-    fontSize: 16,
+    fontSize: 12,
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderRadius: 4,
+    width: 12,
+    height: 12,
+    borderWidth: 1,
+    borderRadius: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: 4,
   },
   checkboxInner: {
-    width: 16,
-    height: 16,
-    borderRadius: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 1,
   },
   habitHistoryContainer: {
-    height: 140,  // Increased height to accommodate larger dots
-    marginBottom: 8,
+    height: 95,  // Reduced height to match the new weekColumn height
+    marginBottom: 4,
   },
   scrollContentContainer: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 2,
+    paddingVertical: 2, // Increased vertical padding
   },
   weekColumn: {
     flexDirection: 'column',
-    marginRight: 9,  // Reduced by 3pt from 12
-    justifyContent: 'space-between',
-    height: 132,  // Increased height to accommodate larger dots
+    marginRight: 1,  // Reduced horizontal gap
+    justifyContent: 'flex-start', // Changed to flex-start to have more control over spacing
+    height: 90,  // Significantly reduced height to bring dots closer vertically
   },
   dot: {
-    width: 16, // Increased by twice from 8px
-    height: 16, // Increased by twice from 8px
-    borderRadius: 8, // Half of width/height to maintain circular shape
+    width: 10, // Size as requested
+    height: 10, // Size as requested
+    borderRadius: 5, // Half of width/height to maintain circular shape
     backgroundColor: '#E0E0E0',
-    margin: 3, // Maintained 3pt spacing
+    marginHorizontal: 1, // Horizontal spacing
+    marginVertical: 0.5, // Reduced vertical spacing to minimum
   },
   todayDot: {
-    borderWidth: 2,
-    borderColor: '#FF4081', // Pink color for better visibility in both light and dark modes
+    backgroundColor: '#A0A0A0', // Darker shade of grey for today's dot
   },
 });
 
-export default HabitBox;
+// Wrap with React.memo to prevent unnecessary re-renders
+export default React.memo(HabitBox);

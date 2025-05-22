@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -44,8 +44,8 @@ const HomeScreen: React.FC = () => {
     );
   };
   
-  // Get dates for the past 104 weeks
-  const allWeeks = getPast104Weeks();
+  // Get dates for the past 104 weeks - memoized to prevent recalculation on re-renders
+  const allWeeks = useMemo(() => getPast104Weeks(), []);
   
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
