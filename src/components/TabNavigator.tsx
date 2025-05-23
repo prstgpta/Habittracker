@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface TabNavigatorProps {
-  activeTab: 'home' | 'weekly';
-  onTabChange: (tab: 'home' | 'weekly') => void;
+  activeTab: 'home' | 'weekly' | 'analytics';
+  onTabChange: (tab: 'home' | 'weekly' | 'analytics') => void;
 }
 
 const TabNavigator: React.FC<TabNavigatorProps> = ({ activeTab, onTabChange }) => {
@@ -24,6 +24,15 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ activeTab, onTabChange }) =
       >
         <Text style={[styles.tabText, activeTab === 'weekly' && styles.activeTabText]}>
           Weekly View
+        </Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[styles.tab, activeTab === 'analytics' && styles.activeTab]}
+        onPress={() => onTabChange('analytics')}
+      >
+        <Text style={[styles.tabText, activeTab === 'analytics' && styles.activeTabText]}>
+          Analytics
         </Text>
       </TouchableOpacity>
     </View>

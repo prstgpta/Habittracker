@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { HabitTheme } from '../context/HabitContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface AddHabitModalProps {
   visible: boolean;
@@ -23,6 +24,23 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
 }) => {
   const [habitName, setHabitName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<HabitTheme>('blue');
+  const { colors, isDarkMode } = useTheme();
+  
+  // Create dynamic styles based on theme
+  const dynamicStyles = {
+    selectedThemeBorder: {
+      borderColor: isDarkMode ? '#fff' : '#000',
+    },
+    cancelButton: {
+      backgroundColor: isDarkMode ? '#555' : '#ccc',
+    },
+    addButton: {
+      backgroundColor: '#2196F3',
+    },
+    disabledButton: {
+      backgroundColor: isDarkMode ? '#555555' : '#B0BEC5',
+    },
+  };
 
   const handleAddHabit = () => {
     if (habitName.trim()) {
@@ -49,26 +67,31 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
       <TouchableWithoutFeedback onPress={handleClose}>
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback onPress={() => {}}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Add New Habit</Text>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Add New Habit</Text>
               
               <TextInput
-                style={styles.input}
+                style={[styles.input, { 
+                  backgroundColor: colors.background,
+                  color: colors.text,
+                  borderColor: isDarkMode ? '#555' : '#ccc'
+                }]}
                 placeholder="Habit name"
+                placeholderTextColor={isDarkMode ? '#888' : '#999'}
                 value={habitName}
                 onChangeText={setHabitName}
                 maxLength={30}
                 autoFocus
               />
               
-              <Text style={styles.themeLabel}>Choose a theme color:</Text>
+              <Text style={[styles.themeLabel, { color: colors.text }]}>Choose a theme color:</Text>
               
               <View style={styles.themeContainer}>
                 <TouchableOpacity
                   style={[
                     styles.themeOption,
                     styles.redTheme,
-                    selectedTheme === 'red' && styles.selectedTheme,
+                    selectedTheme === 'red' && [styles.selectedTheme, dynamicStyles.selectedThemeBorder],
                   ]}
                   onPress={() => setSelectedTheme('red')}
                 />
@@ -77,7 +100,7 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
                   style={[
                     styles.themeOption,
                     styles.blueTheme,
-                    selectedTheme === 'blue' && styles.selectedTheme,
+                    selectedTheme === 'blue' && [styles.selectedTheme, dynamicStyles.selectedThemeBorder],
                   ]}
                   onPress={() => setSelectedTheme('blue')}
                 />
@@ -86,7 +109,7 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
                   style={[
                     styles.themeOption,
                     styles.greenTheme,
-                    selectedTheme === 'green' && styles.selectedTheme,
+                    selectedTheme === 'green' && [styles.selectedTheme, dynamicStyles.selectedThemeBorder],
                   ]}
                   onPress={() => setSelectedTheme('green')}
                 />
@@ -94,7 +117,7 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
               
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
+                  style={[styles.button, dynamicStyles.cancelButton]}
                   onPress={handleClose}
                 >
                   <Text style={styles.buttonText}>Cancel</Text>
@@ -103,8 +126,8 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.button, 
-                    styles.addButton,
-                    !habitName.trim() && styles.disabledButton,
+                    dynamicStyles.addButton,
+                    !habitName.trim() && dynamicStyles.disabledButton,
                   ]}
                   onPress={handleAddHabit}
                   disabled={!habitName.trim()}
@@ -176,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   selectedTheme: {
-    borderColor: '#000',
+    borderWidth: 3,
   },
   buttonContainer: {
     flexDirection: 'row',

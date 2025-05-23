@@ -126,6 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 10, // Add top margin for better spacing
   },
   headerButtons: {
     flexDirection: 'row',

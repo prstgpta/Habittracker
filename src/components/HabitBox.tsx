@@ -74,15 +74,6 @@ const HabitBox: React.FC<HabitBoxProps> = ({
             </TouchableOpacity>
           )}
           
-          {onDeleteHabit && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onDeleteHabit(habit.id)}
-            >
-              <Text style={styles.actionIcon}>🗑️</Text>
-            </TouchableOpacity>
-          )}
-          
           {showCheckbox && (
             <TouchableOpacity
               style={[styles.checkbox, { borderColor: themeColor.primary }]}
@@ -147,8 +138,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingHorizontal: 16,
     paddingTop: 11, // Reduced by 5pt from 16
-    paddingBottom: 11, // Reduced by 5pt from 16
-    marginBottom: 16,
+    paddingBottom: 5, // Changed to 5px for consistency across all screens
+    marginBottom: 12, // Changed from 16 to match Weekly View
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -172,25 +163,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    padding: 5,
-    marginLeft: 8,
+    padding: 6,
+    marginLeft: 10,
   },
   actionIcon: {
-    fontSize: 12,
+    fontSize: 20,
   },
   checkbox: {
-    width: 12,
-    height: 12,
-    borderWidth: 1,
-    borderRadius: 2,
+    width: 18,
+    height: 18,
+    borderWidth: 1.5,
+    borderRadius: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 4,
+    marginLeft: 8,
   },
   checkboxInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 1,
+    width: 18,
+    height: 18,
+    borderRadius: 1.5,
   },
   habitHistoryContainer: {
     height: 95,  // Reduced height to match the new weekColumn height

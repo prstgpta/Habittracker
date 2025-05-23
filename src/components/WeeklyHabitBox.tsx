@@ -68,25 +68,9 @@ const WeeklyHabitBox: React.FC<WeeklyHabitBoxProps> = ({
       <View style={styles.headerRow}>
         <Text style={[styles.habitName, { color: colors.text }]}>{habit.name}</Text>
         
-        {/* Edit and Delete buttons at top right */}
+        {/* No edit button in Weekly View */}
         <View style={styles.actionButtons}>
-          {onEditHabit && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onEditHabit(habit)}
-            >
-              <Text style={styles.actionIcon}>✏️</Text>
-            </TouchableOpacity>
-          )}
-          
-          {onDeleteHabit && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onDeleteHabit(habit.id)}
-            >
-              <Text style={styles.actionIcon}>🗑️</Text>
-            </TouchableOpacity>
-          )}
+          {/* Edit button removed */}
         </View>
       </View>
       
@@ -148,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'white',
     paddingTop: 10, // Reduced from 16
-    paddingBottom: 6, // Reduced from 8
+    paddingBottom: 5, // Changed to 5px for consistency across all screens
     paddingHorizontal: 16,
     marginBottom: 12, // Reduced from 16
     shadowColor: '#000',
@@ -173,12 +157,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    padding: 4, // Reduced from 5
-    marginLeft: 0, // Removed margin
-    marginRight: 4, // Added small right margin
+    padding: 6, // Increased from 4
+    marginLeft: 0,
+    marginRight: 6, // Increased from 4
   },
   actionIcon: {
-    fontSize: 16,
+    fontSize: 20, // Increased from 16
   },
   controlsRow: {
     flexDirection: 'row',

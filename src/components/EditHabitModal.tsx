@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { Habit, HabitTheme } from '../context/HabitContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface EditHabitModalProps {
   visible: boolean;
@@ -28,6 +29,26 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
 }) => {
   const [habitName, setHabitName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<HabitTheme>('blue');
+  const { colors, isDarkMode } = useTheme();
+  
+  // Create dynamic styles based on theme
+  const dynamicStyles = {
+    selectedThemeBorder: {
+      borderColor: isDarkMode ? '#fff' : '#000',
+    },
+    cancelButton: {
+      backgroundColor: isDarkMode ? '#555' : '#ccc',
+    },
+    updateButton: {
+      backgroundColor: '#2196F3',
+    },
+    deleteButton: {
+      backgroundColor: '#FF5252',
+    },
+    disabledButton: {
+      backgroundColor: isDarkMode ? '#555555' : '#B0BEC5',
+    },
+  };
 
   // Update state when the habit prop changes
   useEffect(() => {
@@ -89,26 +110,31 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
       <TouchableWithoutFeedback onPress={handleClose}>
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback onPress={() => {}}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Edit Habit</Text>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Habit</Text>
               
               <TextInput
-                style={styles.input}
+                style={[styles.input, { 
+                  backgroundColor: colors.background,
+                  color: colors.text,
+                  borderColor: isDarkMode ? '#555' : '#ccc'
+                }]}
                 placeholder="Habit name"
+                placeholderTextColor={isDarkMode ? '#888' : '#999'}
                 value={habitName}
                 onChangeText={setHabitName}
                 maxLength={30}
                 autoFocus
               />
               
-              <Text style={styles.themeLabel}>Choose a theme color:</Text>
+              <Text style={[styles.themeLabel, { color: colors.text }]}>Choose a theme color:</Text>
               
               <View style={styles.themeContainer}>
                 <TouchableOpacity
                   style={[
                     styles.themeOption,
                     styles.redTheme,
-                    selectedTheme === 'red' && styles.selectedTheme,
+                    selectedTheme === 'red' && [styles.selectedTheme, dynamicStyles.selectedThemeBorder],
                   ]}
                   onPress={() => setSelectedTheme('red')}
                 />
@@ -117,7 +143,7 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
                   style={[
                     styles.themeOption,
                     styles.blueTheme,
-                    selectedTheme === 'blue' && styles.selectedTheme,
+                    selectedTheme === 'blue' && [styles.selectedTheme, dynamicStyles.selectedThemeBorder],
                   ]}
                   onPress={() => setSelectedTheme('blue')}
                 />
@@ -126,7 +152,7 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
                   style={[
                     styles.themeOption,
                     styles.greenTheme,
-                    selectedTheme === 'green' && styles.selectedTheme,
+                    selectedTheme === 'green' && [styles.selectedTheme, dynamicStyles.selectedThemeBorder],
                   ]}
                   onPress={() => setSelectedTheme('green')}
                 />
@@ -134,7 +160,7 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
               
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                  style={[styles.button, styles.deleteButton]}
+                  style={[styles.button, dynamicStyles.deleteButton]}
                   onPress={handleDeleteHabit}
                 >
                   <Text style={styles.buttonText}>Delete</Text>
@@ -142,7 +168,7 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
                 
                 <View style={styles.rightButtons}>
                   <TouchableOpacity
-                    style={[styles.button, styles.cancelButton]}
+                    style={[styles.button, dynamicStyles.cancelButton]}
                     onPress={handleClose}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
@@ -151,8 +177,8 @@ const EditHabitModal: React.FC<EditHabitModalProps> = ({
                   <TouchableOpacity
                     style={[
                       styles.button, 
-                      styles.updateButton,
-                      !habitName.trim() && styles.disabledButton,
+                      dynamicStyles.updateButton,
+                      !habitName.trim() && dynamicStyles.disabledButton,
                     ]}
                     onPress={handleUpdateHabit}
                     disabled={!habitName.trim()}
@@ -225,7 +251,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   selectedTheme: {
-    borderColor: '#000',
+    borderWidth: 3,
   },
   buttonContainer: {
     flexDirection: 'row',
