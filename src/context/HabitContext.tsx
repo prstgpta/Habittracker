@@ -16,6 +16,7 @@ export interface Habit {
 interface HabitContextType {
   habits: Habit[];
   addHabit: (name: string, theme: HabitTheme) => void;
+  addHabitWithCompletions: (name: string, theme: HabitTheme, completions: Record<string, boolean>) => void;
   updateHabit: (habit: Habit) => void;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
@@ -65,6 +66,22 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       theme,
       createdAt: new Date().toISOString(),
       completions: {},
+      order: habits.length,
+    };
+
+    setHabits([...habits, newHabit]);
+  };
+  
+  // Add a new habit with completions (for import)
+  const addHabitWithCompletions = (name: string, theme: HabitTheme, completions: Record<string, boolean>) => {
+    console.log(`Adding habit "${name}" with ${Object.keys(completions).length} completions`);
+    
+    const newHabit: Habit = {
+      id: Date.now().toString(),
+      name,
+      theme,
+      createdAt: new Date().toISOString(),
+      completions: completions,
       order: habits.length,
     };
 
@@ -129,6 +146,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       value={{
         habits,
         addHabit,
+        addHabitWithCompletions,
         updateHabit,
         toggleHabitCompletion,
         deleteHabit,
