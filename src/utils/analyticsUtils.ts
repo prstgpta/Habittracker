@@ -6,68 +6,55 @@ import { formatDate, getToday } from './dateUtils';
 
 // Calculate the current streak for a habit
 export const getCurrentStreak = (habit: Habit): number => {
-  // This is a very simple implementation that avoids any double counting
-  
-  // First, get all completed dates
+  // Get all completed dates
   const completedDates = Object.keys(habit.completions)
     .filter(date => habit.completions[date])
-    .sort(); // Sort dates in ascending order
+    .map(date => new Date(date))
+    .sort((a, b) => b.getTime() - a.getTime()); // Sort in descending order (newest first)
   
   if (completedDates.length === 0) {
     return 0;
   }
   
   // Get today's date
-  const todayStr = getToday();
+  const today = new Date(getToday());
   
-  // Initialize streak counter
-  let streak = 0;
+  // Check if the streak includes today
+  let streakIncludesToday = false;
+  let startingDate = null;
   
   // Check if today is completed
-  const todayCompleted = habit.completions[todayStr] || false;
-  
-  // Create a copy of completedDates without today (if it exists)
-  const pastCompletedDates = completedDates.filter(date => date !== todayStr);
-  
-  // If there are no past completions and today is not completed, return 0
-  if (pastCompletedDates.length === 0 && !todayCompleted) {
-    return 0;
+  if (habit.completions[getToday()]) {
+    streakIncludesToday = true;
+    startingDate = today;
+  } else {
+    // If today is not completed, check if yesterday is in the completed dates
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = formatDate(yesterday);
+    
+    if (habit.completions[yesterdayStr]) {
+      startingDate = yesterday;
+    } else {
+      // No current streak if neither today nor yesterday is completed
+      return 0;
+    }
   }
   
-  // If today is completed, we'll count it separately at the end
-  // Start by checking the most recent completion before today
-  if (pastCompletedDates.length > 0) {
-    // Get the most recent completion date (last item in sorted array)
-    const lastCompletionDate = new Date(pastCompletedDates[pastCompletedDates.length - 1]);
+  // Count consecutive days
+  let streak = 0;
+  let currentDate = new Date(startingDate);
+  
+  // Keep going back one day at a time as long as days are completed
+  while (true) {
+    const dateStr = formatDate(currentDate);
     
-    // If today is not completed, check if the last completion was yesterday
-    if (!todayCompleted) {
-      const yesterday = new Date(todayStr);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = formatDate(yesterday);
-      
-      // If the last completion wasn't yesterday, there's no current streak
-      if (formatDate(lastCompletionDate) !== yesterdayStr) {
-        return 0;
-      }
-    }
-    
-    // Count consecutive days backwards from the last completion
-    let currentDate = new Date(lastCompletionDate);
-    let dateStr = formatDate(currentDate);
-    
-    // Start counting from the last completion
-    while (habit.completions[dateStr]) {
+    if (habit.completions[dateStr]) {
       streak++;
-      // Move to the previous day
       currentDate.setDate(currentDate.getDate() - 1);
-      dateStr = formatDate(currentDate);
+    } else {
+      break;
     }
-  }
-  
-  // Add today to the streak if it's completed
-  if (todayCompleted) {
-    streak += 1;
   }
   
   return streak;
@@ -75,31 +62,44 @@ export const getCurrentStreak = (habit: Habit): number => {
 
 // Calculate the longest streak for a habit
 export const getLongestStreak = (habit: Habit): number => {
-  const dates = Object.keys(habit.completions)
+  // Get all completed dates
+  const completedDates = Object.keys(habit.completions)
     .filter(date => habit.completions[date])
-    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    .map(date => new Date(date))
+    .sort((a, b) => a.getTime() - b.getTime()); // Sort in ascending order
   
-  if (dates.length === 0) return 0;
+  if (completedDates.length === 0) {
+    return 0;
+  }
+  
+  // If there's only one completion, the longest streak is 1
+  if (completedDates.length === 1) {
+    return 1;
+  }
   
   let longestStreak = 0;
-  let currentStreak = 1;
+  let currentStreak = 1; // Start with 1 for the first date
   
-  for (let i = 1; i < dates.length; i++) {
-    const prevDate = new Date(dates[i - 1]);
-    const currDate = new Date(dates[i]);
+  // Loop through the sorted dates to find consecutive days
+  for (let i = 1; i < completedDates.length; i++) {
+    const prevDate = new Date(completedDates[i-1]);
+    const currDate = new Date(completedDates[i]);
     
-    // Check if dates are consecutive
-    prevDate.setDate(prevDate.getDate() + 1);
+    // Calculate the difference in days between the current date and previous date
+    const diffTime = currDate.getTime() - prevDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
-    if (prevDate.getTime() === currDate.getTime()) {
+    // If the difference is exactly 1 day, the dates are consecutive
+    if (diffDays === 1) {
       currentStreak++;
     } else {
+      // If not consecutive, check if this streak is the longest so far
       longestStreak = Math.max(longestStreak, currentStreak);
-      currentStreak = 1;
+      currentStreak = 1; // Reset streak counter
     }
   }
   
-  // Check the last streak
+  // Check if the final streak is the longest
   longestStreak = Math.max(longestStreak, currentStreak);
   
   return longestStreak;
