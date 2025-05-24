@@ -6,31 +6,68 @@ import { formatDate, getToday } from './dateUtils';
 
 // Calculate the current streak for a habit
 export const getCurrentStreak = (habit: Habit): number => {
-  const today = getToday();
-  const dates = Object.keys(habit.completions)
+  // This is a very simple implementation that avoids any double counting
+  
+  // First, get all completed dates
+  const completedDates = Object.keys(habit.completions)
     .filter(date => habit.completions[date])
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    .sort(); // Sort dates in ascending order
   
-  if (dates.length === 0) return 0;
-  
-  let streak = 0;
-  let currentDate = new Date(today);
-  
-  // Check if today is completed
-  if (habit.completions[today]) {
-    streak = 1;
-  } else {
-    // If today is not completed, start checking from yesterday
-    currentDate.setDate(currentDate.getDate() - 1);
+  if (completedDates.length === 0) {
+    return 0;
   }
   
-  // Convert to YYYY-MM-DD format
-  let dateString = formatDate(currentDate);
+  // Get today's date
+  const todayStr = getToday();
   
-  while (habit.completions[dateString]) {
-    streak++;
-    currentDate.setDate(currentDate.getDate() - 1);
-    dateString = formatDate(currentDate);
+  // Initialize streak counter
+  let streak = 0;
+  
+  // Check if today is completed
+  const todayCompleted = habit.completions[todayStr] || false;
+  
+  // Create a copy of completedDates without today (if it exists)
+  const pastCompletedDates = completedDates.filter(date => date !== todayStr);
+  
+  // If there are no past completions and today is not completed, return 0
+  if (pastCompletedDates.length === 0 && !todayCompleted) {
+    return 0;
+  }
+  
+  // If today is completed, we'll count it separately at the end
+  // Start by checking the most recent completion before today
+  if (pastCompletedDates.length > 0) {
+    // Get the most recent completion date (last item in sorted array)
+    const lastCompletionDate = new Date(pastCompletedDates[pastCompletedDates.length - 1]);
+    
+    // If today is not completed, check if the last completion was yesterday
+    if (!todayCompleted) {
+      const yesterday = new Date(todayStr);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = formatDate(yesterday);
+      
+      // If the last completion wasn't yesterday, there's no current streak
+      if (formatDate(lastCompletionDate) !== yesterdayStr) {
+        return 0;
+      }
+    }
+    
+    // Count consecutive days backwards from the last completion
+    let currentDate = new Date(lastCompletionDate);
+    let dateStr = formatDate(currentDate);
+    
+    // Start counting from the last completion
+    while (habit.completions[dateStr]) {
+      streak++;
+      // Move to the previous day
+      currentDate.setDate(currentDate.getDate() - 1);
+      dateStr = formatDate(currentDate);
+    }
+  }
+  
+  // Add today to the streak if it's completed
+  if (todayCompleted) {
+    streak += 1;
   }
   
   return streak;

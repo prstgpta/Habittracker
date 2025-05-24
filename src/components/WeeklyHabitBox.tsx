@@ -25,20 +25,21 @@ const WeeklyHabitBox: React.FC<WeeklyHabitBoxProps> = ({
   const { width: screenWidth } = useWindowDimensions();
   
   // Calculate dynamic dot size based on screen width
-  // Reserve space for navigation controls and padding
-  const navigationControlsWidth = 150; // Approximate width for date range and arrows
-  const containerPadding = 32; // Left and right padding (16px each)
+  // Reserve space for navigation controls, padding, and extra margin
+  const navigationControlsWidth = 150; // Reduced width for more compact navigation controls
+  const containerPadding = 50; // Increased padding (25px right, 16px left)
   const dotSpacing = 2; // Total horizontal space between dots (1px on each side)
+  const safetyMargin = 30; // Increased safety margin to prevent cutoff
   
-  // Available width for dots = screen width - (navigation controls + padding)
-  const availableWidth = screenWidth - navigationControlsWidth - containerPadding;
+  // Available width for dots = screen width - (navigation controls + padding + safety margin)
+  const availableWidth = screenWidth - navigationControlsWidth - containerPadding - safetyMargin;
   
   // Calculate dot size (7 dots for 7 days of the week)
   // Subtract total spacing between dots (6 spaces * 2px)
   const calculatedDotSize = Math.floor((availableWidth - (6 * dotSpacing)) / 7);
   
-  // Ensure dot size is at least 10px and at most 17px
-  const dotSize = Math.max(10, Math.min(17, calculatedDotSize));
+  // Ensure dot size is at least 8px and at most 16px
+  const dotSize = Math.max(8, Math.min(16, calculatedDotSize));
   
   // Get theme color based on habit theme
   const themeColor = {
@@ -155,7 +156,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingTop: 10, // Reduced from 16
     paddingBottom: 5, // Changed to 5px for consistency across all screens
-    paddingHorizontal: 16,
+    paddingLeft: 16,
+    paddingRight: 25, // Increased right padding to prevent dots from being cut off
     marginBottom: 12, // Reduced from 16
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -179,16 +181,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    padding: 6, // Increased from 4
+    padding: 3, // Increased from 4
     marginLeft: 0,
-    marginRight: 6, // Increased from 4
+    marginRight: 3, // Increased from 4
   },
   actionIcon: {
     fontSize: 20, // Increased from 16
   },
   controlsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start', // Changed from space-between to flex-start
     alignItems: 'center',
     marginBottom: 6,
   },
@@ -196,13 +198,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 0,
+    marginRight: 10, // Add right margin to shift away from dots
   },
   rightControls: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 'auto', // Push to the right side
+    paddingRight: 12, // Increased padding on the right
+    marginRight: 0, // Removed negative margin
   },
   navTriangle: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 3, // Reduced from 8
     paddingVertical: 4,
     justifyContent: 'center',
     alignItems: 'center',
@@ -218,7 +224,7 @@ const styles = StyleSheet.create({
   dateRangeText: {
     fontSize: 14,
     color: '#757575',
-    marginHorizontal: 8,
+    marginHorizontal: 2, // Reduced from 8
   },
   dotsContainer: {
     width: '100%',
@@ -238,9 +244,11 @@ const styles = StyleSheet.create({
   },
   dotsRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center', // Changed from flex-end to center
     paddingHorizontal: 0,
-    marginLeft: 4,
+    marginLeft: -2, // Reduced from 1 to move dots left by an additional 3px
+    marginRight: 15, // Increased right margin to prevent dots from being cut off
+    paddingRight: 5, // Added right padding for extra space
   },
   dot: {
     // Width, height, and borderRadius now set dynamically
