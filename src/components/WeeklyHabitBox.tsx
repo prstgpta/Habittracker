@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, useWindowDimensions } from 'react-native';
 import { Habit } from '../context/HabitContext';
 import { useTheme } from '../context/ThemeContext';
 import { formatDate, getDayShortName, isToday, formatDateShort } from '../utils/dateUtils';
@@ -22,6 +22,23 @@ const WeeklyHabitBox: React.FC<WeeklyHabitBoxProps> = ({
   // Start with index 0 which represents the current week (week 2 in the UI)
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
   const { colors } = useTheme();
+  const { width: screenWidth } = useWindowDimensions();
+  
+  // Calculate dynamic dot size based on screen width
+  // Reserve space for navigation controls and padding
+  const navigationControlsWidth = 150; // Approximate width for date range and arrows
+  const containerPadding = 32; // Left and right padding (16px each)
+  const dotSpacing = 2; // Total horizontal space between dots (1px on each side)
+  
+  // Available width for dots = screen width - (navigation controls + padding)
+  const availableWidth = screenWidth - navigationControlsWidth - containerPadding;
+  
+  // Calculate dot size (7 dots for 7 days of the week)
+  // Subtract total spacing between dots (6 spaces * 2px)
+  const calculatedDotSize = Math.floor((availableWidth - (6 * dotSpacing)) / 7);
+  
+  // Ensure dot size is at least 10px and at most 17px
+  const dotSize = Math.max(10, Math.min(17, calculatedDotSize));
   
   // Get theme color based on habit theme
   const themeColor = {
@@ -112,6 +129,11 @@ const WeeklyHabitBox: React.FC<WeeklyHabitBoxProps> = ({
                   key={`dot-${index}`}
                   style={[
                     styles.dot,
+                    {
+                      width: dotSize,
+                      height: dotSize,
+                      borderRadius: dotSize / 2,
+                    },
                     isToday(date) && styles.todayDot,
                     isCompleted && { backgroundColor: themeColor.primary },
                   ]}
@@ -221,9 +243,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   dot: {
-    width: 17, // Reduced by ~30% from 24px
-    height: 17, // Reduced by ~30% from 24px
-    borderRadius: 8.5,
+    // Width, height, and borderRadius now set dynamically
     backgroundColor: '#E0E0E0',
     marginVertical: 2,
     marginHorizontal: 1, // Ensures 2px horizontal distance between dots

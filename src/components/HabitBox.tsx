@@ -136,10 +136,10 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 8,
     backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingTop: 11, // Reduced by 5pt from 16
+    paddingHorizontal: 12,
+    paddingTop: 8, // Reduced by 5pt from 16
     paddingBottom: 5, // Changed to 5px for consistency across all screens
-    marginBottom: 12, // Changed from 16 to match Weekly View
+    marginBottom: 6, // Changed from 16 to match Weekly View
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
