@@ -5,17 +5,15 @@
  * @format
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   View,
   useColorScheme,
   Platform,
-  StatusBar as RNStatusBar,
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { HabitProvider } from './src/context/HabitContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 import HomeScreen from './src/screens/HomeScreen';
@@ -27,16 +25,25 @@ function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const [activeTab, setActiveTab] = useState<'home' | 'weekly' | 'analytics'>('home');
 
+  // Set status bar configuration
+  useEffect(() => {
+    // Make status bar transparent on Android
+    if (Platform.OS === 'android') {
+      StatusBar.setTranslucent(true);
+      StatusBar.setBackgroundColor('transparent');
+    }
+  }, []);
+
   return (
     <SafeAreaProvider>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+        translucent={true}
+      />
       <ThemeProvider>
         <HabitProvider>
-          <SafeAreaView style={styles.safeArea}>
-            <StatusBar
-              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-              backgroundColor={styles.safeArea.backgroundColor}
-            />
-            
+          <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <View style={styles.container}>
               <View style={{ display: activeTab === 'home' ? 'flex' : 'none', flex: 1 }}>
                 <HomeScreen />
@@ -49,7 +56,9 @@ function App(): React.JSX.Element {
               </View>
             </View>
             
-            <TabNavigator activeTab={activeTab} onTabChange={setActiveTab} />
+            <SafeAreaView style={styles.bottomSafeArea} edges={['bottom']}>
+              <TabNavigator activeTab={activeTab} onTabChange={setActiveTab} />
+            </SafeAreaView>
           </SafeAreaView>
         </HabitProvider>
       </ThemeProvider>
@@ -57,14 +66,13 @@ function App(): React.JSX.Element {
   );
 }
 
-// Calculate status bar height for different platforms
-const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : RNStatusBar.currentHeight || 0;
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    paddingTop: STATUSBAR_HEIGHT, // Add padding for status bar
+  },
+  bottomSafeArea: {
+    backgroundColor: '#F5F5F5',
   },
   container: {
     flex: 1,
